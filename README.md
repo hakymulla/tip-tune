@@ -1,4 +1,4 @@
-# 🎵 TipTune
+# TipTune
 
 **Real-time music tips powered by Stellar**
 
@@ -47,7 +47,7 @@ Traditional music streaming pays artists fractions of a cent per stream. TipTune
 
 ---
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 
@@ -394,9 +394,9 @@ We welcome contributions! TipTune is participating in the **Stellar Drips Wave P
 ### Getting Started
 
 1. Check out our [CONTRIBUTING.md](CONTRIBUTING.md) guide
-2. Browse [open issues](https://github.com/yourusername/tiptune/issues) tagged with `good-first-issue`
+2. Browse [open issues](https://github.com/OlufunbiIK/tiptune/issues) tagged with `good-first-issue`
 3. Read the [Code of Conduct](CODE_OF_CONDUCT.md)
-4. Join our [Discord community](https://discord.gg/tiptune)
+4. Join our [Discord community] https://discord.gg/tkbwMmJE
 
 ### Development Workflow
 
@@ -462,7 +462,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Contact & Community
 
 
-- **Discord**: [Join our community](https://discord.gg/tiptune)
+- **Discord**: [[Join our community] https://discord.gg/tkbwMmJE
 - **Email**: hello@tiptune.io
 
 ---
