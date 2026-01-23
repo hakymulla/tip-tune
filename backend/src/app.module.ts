@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StorageModule } from './storage/storage.module';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 // import { TracksModule } from './tracks/tracks.module';
 
 @Module({
@@ -24,6 +25,7 @@ import { UsersModule } from './users/users.module';
     }),
     StorageModule,
     UsersModule,
+    AuthModule,
     // TracksModule,
   ],
   controllers: [],
