@@ -92,6 +92,7 @@ export class TipsService {
     }
 
     const amount = paymentOp.amount;
+    const assetCode = paymentOp.asset_type === 'native' ? 'XLM' : paymentOp.asset_code || 'UNK';
 
     // Need to fetch user to get wallet address
     const user = await this.usersService.findOne(userId);
@@ -162,7 +163,7 @@ export class TipsService {
         userId, // This is the UUID of the user context
         artistId,
         savedTip.amount,
-        'XLM'
+        assetCode
       ),
     );
 

@@ -6,7 +6,7 @@ import {
   isConnected,
   getAddress,
   getNetwork,
-  // setNetwork,
+
   signTransaction,
 } from '@stellar/freighter-api';
 import type { Network, WalletState, WalletContextType, WalletErrorCode } from '../types/wallet';
@@ -303,11 +303,8 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({
         setState((prev) => ({ ...prev, error: null }));
 
         // Sign transaction using Freighter
-        // const freighterNetwork = state.network === 'mainnet' ? 'PUBLIC' : 'TESTNET';
         const response = await signTransaction(transactionXdr, {
-          // network: freighterNetwork, // Not supported in v6?
           networkPassphrase: getNetworkPassphrase(state.network),
-          // accountToSign: state.publicKey, // 'address' property instead? No, types say 'address'.
           address: state.publicKey,
         });
 
