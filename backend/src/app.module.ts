@@ -14,6 +14,7 @@ import { PlaylistsModule } from './playlists/playlists.module';
 import { GenresModule } from './genres/genres.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { FollowsModule } from './follows/follows.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -45,8 +46,9 @@ import { FollowsModule } from './follows/follows.module';
     GenresModule,
     ActivitiesModule,
     FollowsModule,
+    EventEmitterModule.forRoot(),
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }
