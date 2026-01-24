@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Badge, BadgeCategory, BadgeTier } from './entities/badge.entity';
 import { UserBadge } from './entities/user-badge.entity';
-import { Tip, TipStatus } from '../tips/tips.entity';
+import { Tip, TipStatus } from '../tips/entities/tip.entity';
 import { Track } from '../tracks/entities/track.entity';
 import { Artist } from '../artists/entities/artist.entity';
 import { User } from '../users/entities/user.entity';
@@ -74,40 +74,43 @@ export class GamificationService implements OnModuleInit {
     @OnEvent('tip.verified', { async: true })
     async handleTipVerified(payload: TipVerifiedEvent) {
         this.logger.log(`Processing tip verified event for tip ${payload.tipId}`);
-        const { senderId, artistId } = payload; // senderId is userId (UUID) of sender
+        const { senderId, artistId } = payload;
 
-        // 1. Tipper Badges (senderId is the User ID of the tipper)
-        // Verify sender exists (senderId is passed as UUID from event)
+        // 1. Tipper Badges 
+        // Resolve User by wallet address if senderId might be address? 
+        // Assuming senderId is the User UUID here as established.
         const user = await this.userRepo.findOne({ where: { id: senderId } });
         if (user) {
-            const userTipsCount = await this.tipRepo.count({
+            // Count tips from this user's wallet
+            const tipsSentCount = await this.tipRepo.count({
                 where: {
-                    fromUserId: senderId,
-                    status: TipStatus.COMPLETED
+                    senderAddress: user.walletAddress,
+                    status: TipStatus.VERIFIED // Using VERIFIED
                 }
             });
 
-            if (userTipsCount >= 1) await this.awardBadge(user.id, 'First Tip');
-            if (userTipsCount >= 10) await this.awardBadge(user.id, '10 Tips');
-            if (userTipsCount >= 100) await this.awardBadge(user.id, '100 Tips');
+            if (tipsSentCount >= 1) await this.awardBadge(user.id, 'First Tip');
+            if (tipsSentCount >= 10) await this.awardBadge(user.id, '10 Tips');
+            if (tipsSentCount >= 100) await this.awardBadge(user.id, '100 Tips');
 
             // Early Supporter logic
+            // Find tips for this artist
+            // Tip.artistId links to Artist entity. artistId from payload is Artist ID.
             const artistTips = await this.tipRepo.find({
-                where: { toArtistId: artistId, status: TipStatus.COMPLETED },
+                where: { artistId: artistId, status: TipStatus.VERIFIED },
                 order: { createdAt: 'ASC' },
-                take: 100 // Optimization
+                take: 100
             });
 
-            // Check if user is in the first 10 distinct tippers
             const uniqueTippers = new Set<string>();
             let rank = 0;
             let isEarly = false;
 
             for (const t of artistTips) {
-                if (!uniqueTippers.has(t.fromUserId)) {
-                    uniqueTippers.add(t.fromUserId);
+                if (!uniqueTippers.has(t.senderAddress)) {
+                    uniqueTippers.add(t.senderAddress);
                     rank++;
-                    if (t.fromUserId === senderId && rank <= 10) {
+                    if (t.senderAddress === user.walletAddress && rank <= 10) {
                         isEarly = true;
                         break;
                     }
@@ -121,26 +124,12 @@ export class GamificationService implements OnModuleInit {
         }
 
         // 2. Artist Badges
-        // artistId here is the Artist Entity ID.
-        // We need to find the User associated with this Artist to award them badges.
         const artist = await this.artistRepo.findOne({ where: { id: artistId }, relations: ['user'] });
         if (artist && artist.user) {
-            // Check based on Artist ID (which is linked to User)
-            // But Tip entity uses `toArtistId` which refers to the UserID of the artist.
-            // Wait, Tip entity definition:
-            // @ManyToOne(() => User) @JoinColumn({ name: 'toArtistId' }) toArtist: User;
-            // So `toArtistId` is the User UUID of the artist.
-
-            // However, the event payload `artistId` is likely the `Artist` entity UUID because `TipsService.create` receives `artistId` as `toArtistId`?
-            // Let's check TipsService.create. 
-            // It takes `artistId` (User ID of artist) as `toArtistId`.
-            // And emit event with `artistId`.
-            // So `payload.artistId` IS the User ID of the artist.
-
             const tipsReceived = await this.tipRepo.count({
                 where: {
-                    toArtistId: artist.user.id, // Ensure we use User ID
-                    status: TipStatus.COMPLETED
+                    artistId: artistId, // Tip.artistId matches Artist.id
+                    status: TipStatus.VERIFIED
                 }
             });
 
@@ -148,6 +137,7 @@ export class GamificationService implements OnModuleInit {
             if (tipsReceived >= 100) await this.awardBadge(artist.user.id, '100 Tips Received');
         }
     }
+
 
     @OnEvent('track.uploaded', { async: true })
     async handleTrackUploaded(payload: TrackUploadedEvent) {
