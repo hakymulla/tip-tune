@@ -26,9 +26,7 @@ export enum TipType {
 }
 
 @Entity("tips")
-@Unique(["stellarTxHash"]) // Prevent duplicate transactions
-@Index(["artistId", "status"])
-@Index(["trackId", "status"])
+@Unique(["stellarTxHash"])
 @Index(["artistId", "status"])
 @Index(["trackId", "status"])
 @Index(["goalId", "status"])
@@ -126,6 +124,9 @@ export class Tip {
 
   @Column({ type: "boolean", default: false })
   isAnonymous: boolean;
+
+  @Column({ nullable: true })
+  asset: string;
 
   @Column({ type: "boolean", default: false })
   isPublic: boolean;

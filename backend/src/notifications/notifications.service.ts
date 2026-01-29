@@ -9,7 +9,7 @@ export class NotificationsService {
   constructor(
     @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
-    private readonly notificationsGateway: NotificationsGateway,
+    private readonly notificationsGateway: NotificationsGateway
   ) {}
 
   async create(createNotificationDto: {
@@ -27,12 +27,16 @@ export class NotificationsService {
       data: createNotificationDto.data,
     });
 
-    const savedNotification = await this.notificationRepository.save(notification);
+    const savedNotification =
+      await this.notificationRepository.save(notification);
 
-    this.notificationsGateway.sendNotificationToArtist(createNotificationDto.userId, {
-      ...savedNotification,
-      type: createNotificationDto.type,
-    });
+    this.notificationsGateway.sendNotificationToArtist(
+      createNotificationDto.userId,
+      {
+        ...savedNotification,
+        type: createNotificationDto.type,
+      }
+    );
 
     return savedNotification;
   }
@@ -94,29 +98,6 @@ export class NotificationsService {
     });
   }
 
-  async create(data: any) {
-    const notification = this.notificationRepository.create({
-      userId: data.userId,
-      type: data.type || NotificationType.GENERAL,
-      title: data.title,
-      message: data.message,
-      data: data.metadata,
-    });
-
-    const savedNotification =
-      await this.notificationRepository.save(notification);
-
-    // Emit via WebSocket if gateway exists
-    if (this.notificationsGateway) {
-      this.notificationsGateway.sendNotificationToArtist(
-        data.userId,
-        savedNotification,
-      );
-    }
-
-    return savedNotification;
-  }
-
   async sendCollaborationInvite(data: any) {
     const notification = this.notificationRepository.create({
       userId: data.artistId,
@@ -138,7 +119,7 @@ export class NotificationsService {
     if (this.notificationsGateway) {
       this.notificationsGateway.sendNotificationToArtist(
         data.artistId,
-        savedNotification,
+        savedNotification
       );
     }
 
@@ -165,7 +146,7 @@ export class NotificationsService {
     if (this.notificationsGateway) {
       this.notificationsGateway.sendNotificationToArtist(
         data.artistId,
-        savedNotification,
+        savedNotification
       );
     }
 
@@ -175,7 +156,7 @@ export class NotificationsService {
   async getUserNotifications(
     userId: string,
     page: number = 1,
-    limit: number = 20,
+    limit: number = 20
   ) {
     const [notifications, total] =
       await this.notificationRepository.findAndCount({
@@ -219,7 +200,7 @@ export class NotificationsService {
   async markAllAsRead(userId: string) {
     await this.notificationRepository.update(
       { userId, isRead: false },
-      { isRead: true },
+      { isRead: true }
     );
     return { success: true };
   }

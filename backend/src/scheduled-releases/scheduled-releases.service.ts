@@ -25,13 +25,13 @@ export class ScheduledReleasesService {
     @InjectRepository(Track)
     private trackRepository: Repository<Track>,
     private notificationsService: NotificationsService,
-    private followsService: FollowsService,
+    private followsService: FollowsService
   ) {}
 
   async createScheduledRelease(
     trackId: string,
     releaseDate: Date,
-    notifyFollowers: boolean = true,
+    notifyFollowers: boolean = true
   ): Promise<ScheduledRelease> {
     const track = await this.trackRepository.findOne({
       where: { id: trackId },
@@ -74,7 +74,7 @@ export class ScheduledReleasesService {
   }
 
   async getScheduledReleaseByTrackId(
-    trackId: string,
+    trackId: string
   ): Promise<ScheduledRelease | null> {
     return this.scheduledReleaseRepository.findOne({
       where: { trackId, isReleased: false },
@@ -85,7 +85,7 @@ export class ScheduledReleasesService {
   async updateScheduledRelease(
     id: string,
     releaseDate?: Date,
-    notifyFollowers?: boolean,
+    notifyFollowers?: boolean
   ): Promise<ScheduledRelease> {
     const release = await this.getScheduledRelease(id);
 
@@ -132,7 +132,7 @@ export class ScheduledReleasesService {
   }
 
   async getArtistScheduledReleases(
-    artistId: string,
+    artistId: string
   ): Promise<ScheduledRelease[]> {
     return this.scheduledReleaseRepository
       .createQueryBuilder("sr")
@@ -169,7 +169,7 @@ export class ScheduledReleasesService {
         await this.releaseTrack(release);
       } catch (error) {
         this.logger.error(
-          `Failed to release track ${release.trackId}: ${error.message}`,
+          `Failed to release track ${release.trackId}: ${error.message}`
         );
       }
     }
@@ -194,7 +194,7 @@ export class ScheduledReleasesService {
     }
 
     this.logger.log(
-      `Successfully released track ${release.track.title} (${release.trackId})`,
+      `Successfully released track ${release.track.title} (${release.trackId})`
     );
   }
 
@@ -211,7 +211,7 @@ export class ScheduledReleasesService {
           type: "track_released",
           title: "Track Released!",
           message: `${release.track.title} by ${release.track.artist.artistName} is now available!`,
-          metadata: {
+          data: {
             trackId: release.trackId,
             artistId: release.track.artist.id,
           },
@@ -221,7 +221,7 @@ export class ScheduledReleasesService {
         await this.preSaveRepository.save(preSave);
       } catch (error) {
         this.logger.error(
-          `Failed to notify user ${preSave.userId}: ${error.message}`,
+          `Failed to notify user ${preSave.userId}: ${error.message}`
         );
       }
     }
@@ -230,7 +230,7 @@ export class ScheduledReleasesService {
   private async notifyFollowers(release: ScheduledRelease): Promise<void> {
     const result = await this.followsService.getFollowers(
       release.track.artist.id,
-      { page: 1, limit: 100 },
+      { page: 1, limit: 100 }
     );
 
     const followers = result.data;
@@ -248,10 +248,10 @@ export class ScheduledReleasesService {
         if (!hasPreSaved) {
           await this.notificationsService.create({
             userId: follower.id,
-            type: "new_release",
-            title: "New Release",
-            message: `${release.track.artist.artistName} just released ${release.track.title}!`,
-            metadata: {
+            type: "track_released",
+            title: "Track Released!",
+            message: `${release.track.title} by ${release.track.artist.artistName} is now available!`,
+            data: {
               trackId: release.trackId,
               artistId: release.track.artist.id,
             },
@@ -259,7 +259,7 @@ export class ScheduledReleasesService {
         }
       } catch (error) {
         this.logger.error(
-          `Failed to notify follower ${follower.id}: ${error.message}`,
+          `Failed to notify follower ${follower.id}: ${error.message}`
         );
       }
     }
@@ -284,7 +284,7 @@ export class ScheduledReleasesService {
       where: {
         trackId,
         createdAt: LessThanOrEqual(
-          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
         ),
       },
     });
@@ -299,8 +299,7 @@ export class ScheduledReleasesService {
       daysUntilRelease: release.isReleased
         ? 0
         : Math.ceil(
-            (release.releaseDate.getTime() - Date.now()) /
-              (1000 * 60 * 60 * 24),
+            (release.releaseDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
           ),
     };
   }
