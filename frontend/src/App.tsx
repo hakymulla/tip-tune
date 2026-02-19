@@ -6,6 +6,7 @@ import { LeaderboardsPage } from "./pages/LeaderboardsPage";
 import DashboardPage from "./pages/DashboardPage";
 import AppHeader from "./components/layout/AppHeader";
 import MusicPlayer, { tracks } from "./components/player/MusicPlayer";
+import { ArtistOnboarding } from "./components/ArtistOnboarding";
 
 function App() {
   return (
@@ -19,9 +20,10 @@ function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           {/* <Route path="/music-player" element={<MusicPlayer />} /> */}
           <Route path="*" element={<NotFoundPage />} />
+          <Route path="/onboarding" element={<ArtistOnboarding />} />
         </Routes>
 
-        <MusicPlayer tracks={tracks}/>
+        <MusicPlayer tracks={tracks} />
       </main>
     </div>
   );
